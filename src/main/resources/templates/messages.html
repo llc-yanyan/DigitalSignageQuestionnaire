@@ -5,20 +5,21 @@
 <title>Hello, Spring Boot!</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
-<script>
-
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
     // Enable pusher logging - don't include this in production
-//    Pusher.logToConsole = true;
+    Pusher.logToConsole = true;
 
     var pusher = new Pusher('438d7f6db8b92d31fc29', {
         cluster : 'ap1',
         encrypted : true
     });
 
-    var channel = pusher.subscribe('my-channel');
+    var channel = pusher.subscribe("[(${messages})]");
     channel.bind('my-event', function(data) {
         document.getElementById("output").innerText = document.getElementById("output").innerText + data.message;
     });
+/*]]>*/
 </script>
 </head>
 <body>
@@ -45,6 +46,8 @@
     <h2>Recent messages</h2>
 
     <dl>
+    <span id="connectionId" th:text="${messages}"></span>
+<!-- 
         <th:block th:each="message : ${messages}">
             <dt>
                 <span class="name" th:text="${message.name}"
@@ -55,6 +58,7 @@
             </dt>
             <dd th:text="${message.text}">Lorem ipsum dolor sitamet</dd>
         </th:block>
+ -->
     </dl>
 
 </body>
