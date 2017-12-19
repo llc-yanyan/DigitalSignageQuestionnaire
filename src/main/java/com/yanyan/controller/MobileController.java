@@ -35,9 +35,11 @@ public class MobileController {
         Pusher pusher = new Pusher("415427", "438d7f6db8b92d31fc29", "04c6703adad3c89bf9b1");
         pusher.setCluster("ap1");
         pusher.setEncrypted(true);
-        logger.info("Called getWhiskies." + connectionId);
 
         pusher.trigger(connectionId, "my-event", Collections.singletonMap("message", "hello world"));
+
+        logger.info("Called getWhiskies." + connectionId);
+        logger.info("Called text." + messageForm.getText());
 
         return "mobile";
     }

@@ -6,6 +6,8 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +21,7 @@ import com.yanyan.form.MessageForm;
 public class MessageController {
 
 	private String connectionId;
+	private static final Logger logger = LoggerFactory.getLogger(MobileController.class);
 	
     @GetMapping("/messages")
     public String messages(Model model) {
