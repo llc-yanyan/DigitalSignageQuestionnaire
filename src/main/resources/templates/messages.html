@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <title>Hello, Spring Boot!</title>
-<script type="text/javascript"
-    src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script type="text/javascript"
-    src="https://js.pusher.com/4.1/pusher.min.js"></script>
-<script th:inline="javascript">
+    <script type="text/javascript"
+        src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript"
+        src="https://js.pusher.com/4.1/pusher.min.js"></script>
+    <script th:inline="javascript">
     /*<![CDATA[*/
     $(function() {
         // Enable pusher logging - don't include this in production
         Pusher.logToConsole = true;
+        var counter = 0;
 
         var pusher = new Pusher('438d7f6db8b92d31fc29', {
             cluster : 'ap1',
@@ -20,8 +21,13 @@
 
         var channel = pusher.subscribe("[(${messages})]");
         channel.bind('my-event', function(data) {
-            $("#output").css("color", "red");
-            $("#output").html(data.message + "<br/>" + $("#output").html());
+        	if(counter == 0) {
+                $("#output").css("color", "red");
+                $("#output").html(data.message);
+        	}else{
+                $("#output").html(data.message + "<br/>" + $("#output").html());
+        	}
+            counter++;
         });
 
         var hostUrl = '/qr/';
@@ -36,7 +42,6 @@
             console.log('done', jqXHR.status);
             console.log(data);
             $("#qrcode").attr("src", 'data:image/png;base64,' + data);
-
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.log('fail', jqXHR.status);
         })
@@ -54,12 +59,11 @@
         }
     });
     /*]]>*/
-</script>
+    </script>
 </head>
 <body>
     <h1>Recent messages</h1>
-    <div class="outputa">bbbb</div>
-    <p id="output">bbbb</p>
+    <p id="output" style="color:gray">It will be appeared something words soon...</p>
 
     <h2>Connection ID</h2>
     <span id="connectionId" th:text="${qrcode}"></span>

@@ -17,38 +17,39 @@ import com.yanyan.form.MessageForm;
 public class MessageController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
-	
-    @GetMapping("/messages")
-    public String messages(UriComponentsBuilder builder, Model model) {
-        model.addAttribute("messageForm", new MessageForm());
 
-        String connectionId = UUID.randomUUID().toString();
-        model.addAttribute("messages", connectionId);
-        
-        URI location = builder.path("/mobile/" + connectionId).build().toUri();
-        logger.info(location.toString());
+	@GetMapping("/messages")
+	public String messages(UriComponentsBuilder builder, Model model) {
+		model.addAttribute("messageForm", new MessageForm());
 
-        model.addAttribute("qrcode", location.toString());
+		String connectionId = UUID.randomUUID().toString();
+		model.addAttribute("messages", connectionId);
 
-        return "messages";
-    }
-    
-    @GetMapping("/messages/{connectionId}")
-    public String messages(@PathVariable(name = "connectionId", required = true) String connectionId, UriComponentsBuilder builder, Model model) {
-        model.addAttribute("messageForm", new MessageForm());
+		URI location = builder.path("/mobile/" + connectionId).build().toUri();
+		logger.info(location.toString());
 
-        model.addAttribute("messages", connectionId);
-        
-        URI location = builder.path("/mobile/" + connectionId).build().toUri();
-        logger.info(location.toString());
+		model.addAttribute("qrcode", location.toString());
 
-        try {
-	        model.addAttribute("qrcode", location.toString());
+		return "messages";
+	}
+
+	@GetMapping("/messages/{connectionId}")
+	public String messages(@PathVariable(name = "connectionId", required = true) String connectionId,
+			UriComponentsBuilder builder, Model model) {
+		model.addAttribute("messageForm", new MessageForm());
+
+		model.addAttribute("messages", connectionId);
+
+		URI location = builder.path("/mobile/" + connectionId).build().toUri();
+		logger.info(location.toString());
+
+		try {
+			model.addAttribute("qrcode", location.toString());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-        return "messages";
-    }
+		return "messages";
+	}
 }

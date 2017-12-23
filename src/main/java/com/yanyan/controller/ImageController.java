@@ -24,39 +24,37 @@ import com.yanyan.form.QrForm;
 @RestController
 @RequestMapping("/qr")
 public class ImageController {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ImageController.class);
-	
+
 	@RequestMapping(method = RequestMethod.POST)
-    public String qr(@ModelAttribute QrForm form) {
-      try {
-    	logger.info("aaaaaaaaaaaaa");
-    	return toByteArray(form.getQrcode());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      return null;
-    }
+	public String qr(@ModelAttribute QrForm form) {
+		try {
+			return toByteArray(form.getQrcode());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
-    private String toByteArray(String contents) throws IOException, WriterException {
-      BarcodeFormat format = BarcodeFormat.QR_CODE;
-      int width = 160;
-      int height = 160;
+	private String toByteArray(String contents) throws IOException, WriterException {
+		BarcodeFormat format = BarcodeFormat.QR_CODE;
+		int width = 160;
+		int height = 160;
 
-      Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
-      hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+		Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
+		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
 
-      try (ByteArrayOutputStream output = new ByteArrayOutputStream()){
-        QRCodeWriter writer = new QRCodeWriter();
-        BitMatrix bitMatrix = writer.encode(contents, format, width, height, hints);
-        MatrixToImageWriter.writeToStream(bitMatrix, "png", output);
-        
-        // バイト配列→BASE64へ変換する
-        Base64 base64 = new Base64();
-        byte[] encoded = base64.encode(output.toByteArray());
-        String base64Image = new String(encoded);        
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			QRCodeWriter writer = new QRCodeWriter();
+			BitMatrix bitMatrix = writer.encode(contents, format, width, height, hints);
+			MatrixToImageWriter.writeToStream(bitMatrix, "png", output);
 
-        return base64Image;
-      }
-    }
+			Base64 base64 = new Base64();
+			byte[] encoded = base64.encode(output.toByteArray());
+			String base64Image = new String(encoded);
+
+			return base64Image;
+		}
+	}
 }
