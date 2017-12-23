@@ -23,7 +23,7 @@ public class MobileController {
 
 	private String connectionId;
 	private static final Logger logger = LoggerFactory.getLogger(MobileController.class);
-	
+
 	@GetMapping("/mobile/{connectionId}")
     public String messages(@PathVariable(name = "connectionId", required = true) String connectionId, Model model) {
 		this.connectionId = connectionId;
@@ -36,7 +36,7 @@ public class MobileController {
         pusher.setCluster("ap1");
         pusher.setEncrypted(true);
 
-        pusher.trigger(connectionId, "my-event", Collections.singletonMap("message", "hello world"));
+        pusher.trigger(connectionId, "my-event", Collections.singletonMap("message", messageForm.getText()));
 
         logger.info("Called getWhiskies." + connectionId);
         logger.info("Called text." + messageForm.getText());

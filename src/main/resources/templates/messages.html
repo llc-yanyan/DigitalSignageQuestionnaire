@@ -3,26 +3,57 @@
 <head>
 <meta charset="UTF-8" />
 <title>Hello, Spring Boot!</title>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script type="text/javascript" src="https://js.pusher.com/4.1/pusher.min.js"></script>
+<script type="text/javascript"
+    src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script type="text/javascript"
+    src="https://js.pusher.com/4.1/pusher.min.js"></script>
 <script th:inline="javascript">
-/*<![CDATA[*/
-$(function(){
-    // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = true;
+    /*<![CDATA[*/
+    $(function() {
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
 
-    var pusher = new Pusher('438d7f6db8b92d31fc29', {
-        cluster : 'ap1',
-        encrypted : true
-    });
+        var pusher = new Pusher('438d7f6db8b92d31fc29', {
+            cluster : 'ap1',
+            encrypted : true
+        });
 
-    var channel = pusher.subscribe("[(${messages})]");
-    channel.bind('my-event', function(data) {
-        $("#output").css("color","red");
-        $("#output").html(data.message + "<br/>" + $("#output").html());
+        var channel = pusher.subscribe("[(${messages})]");
+        channel.bind('my-event', function(data) {
+            $("#output").css("color", "red");
+            $("#output").html(data.message + "<br/>" + $("#output").html());
+        });
+
+        var hostUrl = '/qr/';
+        $.ajax({
+            url : hostUrl,
+            type : 'POST',
+            timeout : 10000,
+            data : {
+                qrcode : "[(${qrcode})]"
+            },
+        }).done(function(data, textStatus, jqXHR) {
+            console.log('done', jqXHR.status);
+            console.log(data);
+            $("#qrcode").attr("src", 'data:image/png;base64,' + data);
+
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.log('fail', jqXHR.status);
+        })
+
+        function ImageToBase64(img, mime_type) {
+            // New Canvas
+            var canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            // Draw Image
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            // To Base64
+            return canvas.toDataURL(mime_type);
+        }
     });
-});
-/*]]>*/
+    /*]]>*/
 </script>
 </head>
 <body>
@@ -31,7 +62,7 @@ $(function(){
     <p id="output">bbbb</p>
 
     <h2>Connection ID</h2>
-    <span id="connectionId" th:text="${messages}"></span>
-
+    <span id="connectionId" th:text="${qrcode}"></span>
+    <img id="qrcode" />
 </body>
 </html>

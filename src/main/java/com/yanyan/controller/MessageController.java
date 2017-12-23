@@ -1,5 +1,6 @@
 package com.yanyan.controller;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.pusher.rest.Pusher;
 import com.yanyan.form.MessageForm;
@@ -21,15 +23,25 @@ import com.yanyan.form.MessageForm;
 public class MessageController {
 
 	private String connectionId;
-	private static final Logger logger = LoggerFactory.getLogger(MobileController.class);
+	private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 	
     @GetMapping("/messages")
-    public String messages(Model model) {
+    public String messages(UriComponentsBuilder builder, Model model) {
         model.addAttribute("messageForm", new MessageForm());
 
         connectionId = "17e6d750-c0fe-401c-83cf-57d0baf4420e";
 //        connectionId = UUID.randomUUID().toString();
         model.addAttribute("messages", connectionId);
+        
+        URI location = builder.path("/mobile/" + connectionId).build().toUri();
+        logger.info(location.toString());
+
+        try {
+	        model.addAttribute("qrcode", location.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         return "messages";
     }
