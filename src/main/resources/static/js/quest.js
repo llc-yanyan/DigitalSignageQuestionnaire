@@ -26,6 +26,7 @@ $(function() {
 	        timeout : 10000,
 	        data : {type: 'text', qNo: 2, text: $("#send-text").val()},
 	      }).done(function(data, textStatus, jqXHR) {
+		    $("#send-text").text('');
 	        console.log('done', jqXHR.status);
 	      }).fail(function(jqXHR, textStatus, errorThrown) {
 	        console.log('fail', jqXHR.status);

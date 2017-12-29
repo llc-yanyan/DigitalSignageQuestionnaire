@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Hello, Spring Boot!</title>
+    <link rel="stylesheet" href="/css/quest.css" type="text/css" />
     <script type="text/javascript"
         src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script type="text/javascript"
@@ -10,6 +11,10 @@
     <script th:inline="javascript">
     /*<![CDATA[*/
     $(function() {
+    	var canvas = document.getElementById("c");
+    	var ctx = canvas.getContext('2d');
+        var textArray = new Array();
+    	
         // Enable pusher logging - don't include this in production
         Pusher.logToConsole = true;
         var counter = 0;
@@ -21,14 +26,52 @@
 
         var channel = pusher.subscribe("[(${messages})]");
         channel.bind('my-event', function(data) {
-        	if(counter == 0) {
-                $("#output").css("color", "red");
-                $("#output").html(data.message);
-        	}else{
-                $("#output").html(data.message + "<br/>" + $("#output").html());
-        	}
+            textArray.push({
+            			  text: data.message,
+            			  cx: canvas.width,
+            			  cy: Math.floor( Math.random() * (canvas.height + 1 - 0) ) + 0,
+            			  speed: Math.random() * (3) + 1,
+            			  color: data.color
+            		});
+            console.log(textArray);
             counter++;
         });
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "gray";
+        ctx.fillText("It will be appeared something words soon...", 10, 50);
+
+        var lastTime = performance.now(),
+        lastFrame = 0,
+        cx = canvas.width,
+        cy = 30,
+        length = 0;
+        move();
+    
+        function move() {
+          var nowTime = performance.now(),
+              time = nowTime - lastTime;
+          lastTime = nowTime;
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for(key in textArray){
+              length = ctx.measureText(textArray[key].text);
+              textArray[key].cx -= ((time / 10) * textArray[key].speed);
+              if(textArray[key].color !== undefined){
+                  ctx.fillStyle = 'rgb(00,00,255)';
+              }else{
+                  ctx.fillStyle = 'rgb(00,255,00)';
+              }
+              ctx.fillText(textArray[key].text, textArray[key].cx, textArray[key].cy);
+          }
+          textArray.some(function(v, i){
+            length = ctx.measureText(v.text);
+            if(v.cx <= (length.width * -1)) {
+              textArray.splice(i, 1);
+            }
+          });
+          
+          window.requestAnimationFrame(move);
+        }
 
         var hostUrl = '/qr/';
         $.ajax({
@@ -63,7 +106,10 @@
 </head>
 <body>
     <h1>Recent messages</h1>
+<!-- 
     <p id="output" style="color:gray">It will be appeared something words soon...</p>
+ -->
+    <canvas id="c" width="960px" height="270px"></canvas>
 
     <h2>Connection ID</h2>
     <span id="connectionId" th:text="${qrcode}"></span>
