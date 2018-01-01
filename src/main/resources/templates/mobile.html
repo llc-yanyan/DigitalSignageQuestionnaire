@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,26 @@
     <script type="text/javascript"
         src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script type="text/javascript" src="/js/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript"
+        src="https://js.pusher.com/4.1/pusher.min.js"></script>
     <script type="text/javascript" src="/js/quest.js"></script>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    $(function() {
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+        var pusher = new Pusher('438d7f6db8b92d31fc29', {
+            cluster : 'ap1',
+            encrypted : true
+        });
+    
+        var channel = pusher.subscribe("[(${messages})]");
+        channel.bind('mb-event', function(data) {
+        	$("#mememe").text(data.text);
+        });
+    });
+    /*]]>*/
+    </script>
 </head>
 <body>
     <div class="ui-corner-all custom-corners">
@@ -36,5 +55,7 @@
             </p>
         </div>
     </div>
+    test
+    <div id="mememe"></div>
 </body>
 </html>

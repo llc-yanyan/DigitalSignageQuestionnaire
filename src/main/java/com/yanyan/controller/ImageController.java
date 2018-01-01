@@ -1,60 +1,78 @@
 package com.yanyan.controller;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Hashtable;
 
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.yanyan.form.QrForm;
 
+import net.glxn.qrgen.core.image.ImageType;
+import net.glxn.qrgen.javase.QRCode;
+
+
+/**
+ * ImageController
+ * @author yanai
+ *
+ */
 @RestController
-@RequestMapping("/qr")
+@RequestMapping("qr")
 public class ImageController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImageController.class);
 
-	@RequestMapping(method = RequestMethod.POST)
-	public String qr(@ModelAttribute QrForm form) {
-		try {
-			return toByteArray(form.getQrcode());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	/**
+	 * Make QR code with custom setting.
+	 * @param width
+	 * @param height
+	 * @param src
+	 * @return
+	 */
+	@RequestMapping(value = "/{width}/{height}", method = RequestMethod.GET)
+	public ResponseEntity<byte[]> qr(@PathVariable("width") Integer width, @PathVariable("height") Integer height,
+			@RequestParam("src") String src) {
+		final HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.IMAGE_PNG);
+
+		return new ResponseEntity<byte[]>(makeQRCode(src, width, height), headers, HttpStatus.CREATED);
 	}
 
-	private String toByteArray(String contents) throws IOException, WriterException {
-		BarcodeFormat format = BarcodeFormat.QR_CODE;
-		int width = 160;
-		int height = 160;
+	/**
+	 * Make QR Code with default setting.
+	 * @param src
+	 * @return
+	 */
+	@RequestMapping(method = RequestMethod.GET)
+	public ResponseEntity<byte[]> qr(@RequestParam("src") String src) {
+		final HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.IMAGE_PNG);
 
-		Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
-		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+		return new ResponseEntity<byte[]>(makeQRCode(src, 100, 100), headers, HttpStatus.CREATED);
+	}
 
-		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-			QRCodeWriter writer = new QRCodeWriter();
-			BitMatrix bitMatrix = writer.encode(contents, format, width, height, hints);
-			MatrixToImageWriter.writeToStream(bitMatrix, "png", output);
-
-			Base64 base64 = new Base64();
-			byte[] encoded = base64.encode(output.toByteArray());
-			String base64Image = new String(encoded);
-
-			return base64Image;
-		}
+	/**
+	 * Make QR code
+	 * @param src
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	private byte[] makeQRCode(String src, int width, int height) {
+		ByteArrayOutputStream stream = QRCode.from(src)
+				.withSize(width, height)
+				.withErrorCorrection(ErrorCorrectionLevel.L)
+				.to(ImageType.PNG)
+				.stream();
+		return stream.toByteArray();
 	}
 }

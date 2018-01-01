@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8" />
 <title>Hello, Spring Boot!</title>
@@ -11,19 +11,33 @@
     <script th:inline="javascript">
     /*<![CDATA[*/
     $(function() {
-    	var canvas = document.getElementById("c");
-    	var ctx = canvas.getContext('2d');
-        var textArray = new Array();
-    	
         // Enable pusher logging - don't include this in production
         Pusher.logToConsole = true;
         var counter = 0;
-
+    	var canvas = document.getElementById("c");
+    	var ctx = canvas.getContext('2d');
+        var canvas3 = document.getElementById("b");
+        var ctx3 = canvas3.getContext('2d');
+        var qrCanvas = document.getElementById("qrcode");
+        
+        var container = document.getElementById('wrap');
+        var textArray = new Array();
+        sizing();
+    	
+        /* Imageオブジェクトを生成 */
+        var img = new Image();
+        img.src = "[(${web})]";
+        
+        function sizing() {
+          canvas.width = container.offsetWidth;
+        }     
+        
         var pusher = new Pusher('438d7f6db8b92d31fc29', {
             cluster : 'ap1',
             encrypted : true
         });
 
+        move();
         var channel = pusher.subscribe("[(${messages})]");
         channel.bind('my-event', function(data) {
             textArray.push({
@@ -39,13 +53,16 @@
         ctx.font = "30px Arial";
         ctx.fillStyle = "gray";
         ctx.fillText("It will be appeared something words soon...", 10, 50);
-
+        
+        qrCanvas.onload = function() {
+        	ctx3.drawImage(qrCanvas, 0, 0);
+        }
+        
         var lastTime = performance.now(),
         lastFrame = 0,
         cx = canvas.width,
         cy = 30,
         length = 0;
-        move();
     
         function move() {
           var nowTime = performance.now(),
@@ -72,47 +89,25 @@
           
           window.requestAnimationFrame(move);
         }
-
-        var hostUrl = '/qr/';
-        $.ajax({
-            url : hostUrl,
-            type : 'POST',
-            timeout : 10000,
-            data : {
-                qrcode : "[(${qrcode})]"
-            },
-        }).done(function(data, textStatus, jqXHR) {
-            console.log('done', jqXHR.status);
-            console.log(data);
-            $("#qrcode").attr("src", 'data:image/png;base64,' + data);
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('fail', jqXHR.status);
-        })
-
-        function ImageToBase64(img, mime_type) {
-            // New Canvas
-            var canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            // Draw Image
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            // To Base64
-            return canvas.toDataURL(mime_type);
-        }
     });
     /*]]>*/
     </script>
 </head>
 <body>
     <h1>Recent messages</h1>
-<!-- 
-    <p id="output" style="color:gray">It will be appeared something words soon...</p>
- -->
-    <canvas id="c" width="960px" height="270px"></canvas>
+    <div id="wrap">
+        <video controls id="v" width="540px" height="330px" loop autoplay style="position: absolute; z-index: 0;">
+            <source src="/video/nc171335.mp4">
+        </video>
+        <canvas id="d" width="960px" height="330px" style="position: absolute; z-index: 0;"></canvas>
+        <canvas id="c" width="960px" height="330px" style="position: absolute; z-index: 1;"></canvas>
+        <canvas id="b" width="960px" height="330px" style="position: absolute; z-index: 2;"></canvas>
+    </div>
 
-    <h2>Connection ID</h2>
-    <span id="connectionId" th:text="${qrcode}"></span>
-    <img id="qrcode" />
+    <div hidden=hidden>
+        <h2>Connection ID</h2>
+        <span id="connectionId" th:text="${qrcode}"></span>
+        <img id="qrcode" th:src="@{/qr/100/100/?src={qrcode}(qrcode=${qrcode})}" hidden=hidden />
+    </div>
 </body>
 </html>

@@ -13,11 +13,23 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.yanyan.form.MessageForm;
 
+/**
+ * 
+ * @author yanai
+ *
+ */
 @Controller
 public class MessageController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 
+	/**
+	 * 
+	 * @param builder
+	 * @param web
+	 * @param model
+	 * @return
+	 */
 	@GetMapping("/messages")
 	public String messages(UriComponentsBuilder builder, Model model) {
 		model.addAttribute("messageForm", new MessageForm());
@@ -33,6 +45,14 @@ public class MessageController {
 		return "messages";
 	}
 
+	/**
+	 * 
+	 * @param connectionId
+	 * @param builder
+	 * @param web
+	 * @param model
+	 * @return
+	 */
 	@GetMapping("/messages/{connectionId}")
 	public String messages(@PathVariable(name = "connectionId", required = true) String connectionId,
 			UriComponentsBuilder builder, Model model) {
@@ -43,12 +63,8 @@ public class MessageController {
 		URI location = builder.path("/mobile/" + connectionId).build().toUri();
 		logger.info(location.toString());
 
-		try {
-			model.addAttribute("qrcode", location.toString());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		model.addAttribute("qrcode", location.toString());
+		model.addAttribute("qrcodeWith", "/qr/"+location.toString());
 
 		return "messages";
 	}
